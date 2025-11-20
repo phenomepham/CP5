@@ -4,16 +4,34 @@
   <meta charset="utf-8" />
   <title>WIOA Career Pathway Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Tailwind CSS -->
+
+  <!-- Inter font + Tailwind CDN with custom config -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind = window.tailwind || {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- React 18 UMD + ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <!-- Babel for JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-gray-50">
-  <a href="adult.html" style="text-decoration:underline;font-size:0.9rem">Adult version</a>
+<body class="bg-slate-950 font-sans">
+  <a href="adult.html" class="absolute top-2 left-3 text-xs text-slate-400 underline">Adult version</a>
 
   <div id="root"></div>
 
@@ -44,9 +62,9 @@
     ];
 
     const STATUS_COLORS = {
-      "Planned": "bg-sky-100 text-sky-900 border-sky-300",
-      "In Progress": "bg-amber-100 text-amber-900 border-amber-300",
-      "Completed": "bg-emerald-100 text-emerald-900 border-emerald-300",
+      "Planned": "bg-sky-500/15 text-sky-50 border-sky-500/60",
+      "In Progress": "bg-amber-500/15 text-amber-50 border-amber-400/60",
+      "Completed": "bg-emerald-500/20 text-emerald-50 border-emerald-400/70",
     };
 
     const BARRIER_LIBRARY = [
@@ -93,31 +111,33 @@
 
     function SectionTitle({ children, emoji }) {
       return (
-        <div className="flex items-center gap-2 text-lg font-semibold">
-          <span className="text-xl">{emoji}</span>
-          <span>{children}</span>
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+          <span className="text-lg">{emoji}</span>
+          <span className="tracking-tight">{children}</span>
         </div>
       );
     }
 
     function Field({ label, hint, children }) {
       return (
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-700">{label}</div>
+        <div className="space-y-1.5">
+          <div className="text-[11px] font-semibold text-slate-300 tracking-wide uppercase">
+            {label}
+          </div>
           {children}
-          {hint ? <div className="text-xs text-gray-500">{hint}</div> : null}
+          {hint ? <div className="text-[11px] text-slate-400">{hint}</div> : null}
         </div>
       );
     }
 
-    // ----- Activity helpers (now shared) -----
+    // ----- Activity helpers -----
     function ensureActivityShape(act) {
       return {
         ...act,
         phase: act.phase || "career",
         status: act.status || "Planned",
         comment: act.comment ?? "",
-        dueDate: act.dueDate ?? "", // NEW: due date
+        dueDate: act.dueDate ?? "",
       };
     }
 
@@ -141,11 +161,11 @@
 
     function isOverdue(step) {
       if (!step.dueDate || step.status === "Completed") return false;
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const today = new Date().toISOString().slice(0, 10);
       return step.dueDate < today;
     }
 
-    // ----- Activities editor component (with search + due dates) -----
+    // ----- Activities editor (search + due dates) -----
     function ActivitiesEditor({ activities, setActivities }) {
       const [search, setSearch] = useState("");
 
@@ -186,14 +206,14 @@
           <div className="flex flex-col gap-2">
             <input
               type="text"
-              className="h-8 px-2 border rounded-md text-xs"
+              className="h-8 px-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
               placeholder="Search activities..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
             <div className="flex gap-2">
               <select
-                className="flex-1 h-10 px-3 border rounded-md"
+                className="flex-1 h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                 defaultValue=""
                 onChange={e => {
                   if (e.target.value) {
@@ -209,7 +229,7 @@
               </select>
               <button
                 onClick={addCustomActivity}
-                className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50"
+                className="px-3 py-1.5 text-xs rounded-full border border-slate-600 bg-slate-900 text-slate-100 hover:border-emerald-400/70 hover:bg-slate-800 transition-colors"
               >
                 Custom
               </button>
@@ -218,17 +238,20 @@
 
           <div className="space-y-2 max-h-64 overflow-auto pr-1">
             {activities.map(a => (
-              <div key={a.id} className="grid grid-cols-12 gap-2 p-2 rounded-md border bg-white">
+              <div
+                key={a.id}
+                className="grid grid-cols-12 gap-2 p-2.5 rounded-xl border border-slate-700 bg-slate-900/80 shadow-sm"
+              >
                 <div className="col-span-4">
                   <input
-                    className="w-full h-9 px-2 border rounded-md"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-700 bg-slate-950 text-slate-100 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                     value={a.label}
                     onChange={e => updateActivity(a.id, { label: e.target.value })}
                   />
                 </div>
                 <div className="col-span-3">
                   <select
-                    className="w-full h-9 px-2 border rounded-md"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-700 bg-slate-950 text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                     value={a.phase}
                     onChange={e => updateActivity(a.id, { phase: e.target.value })}
                   >
@@ -239,7 +262,7 @@
                 </div>
                 <div className="col-span-3">
                   <select
-                    className="w-full h-9 px-2 border rounded-md"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-700 bg-slate-950 text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                     value={a.status}
                     onChange={e => updateActivity(a.id, { status: e.target.value })}
                   >
@@ -251,7 +274,7 @@
                 <div className="col-span-1">
                   <input
                     type="date"
-                    className="w-full h-9 px-1 border rounded-md text-[10px]"
+                    className="w-full h-8 px-1 rounded-lg border border-slate-700 bg-slate-950 text-slate-200 text-[10px] focus:outline-none focus:ring-1 focus:ring-emerald-500/60 focus:border-emerald-500/70"
                     value={a.dueDate || ""}
                     onChange={e => updateActivity(a.id, { dueDate: e.target.value })}
                   />
@@ -259,7 +282,7 @@
                 <div className="col-span-1 text-right">
                   <button
                     onClick={() => removeActivity(a.id)}
-                    className="px-2 py-1 text-gray-600 hover:text-red-600"
+                    className="px-2 py-1 text-slate-400 hover:text-red-400 text-xs"
                   >
                     ×
                   </button>
@@ -267,7 +290,7 @@
                 <div className="col-span-12">
                   <textarea
                     rows="2"
-                    className="w-full px-2 py-1 border rounded-md text-sm"
+                    className="w-full px-2 py-1 rounded-lg border border-slate-700 bg-slate-950 text-slate-100 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                     placeholder="Add a comment or detail for this activity"
                     value={a.comment ?? ""}
                     onChange={e => updateActivity(a.id, { comment: e.target.value })}
@@ -314,13 +337,9 @@
       const [compact, setCompact] = useState(false);
       const [jsonText, setJsonText] = useState("");
 
-      // Existing print toggle
       const [printPathwayOnly, setPrintPathwayOnly] = useState(false);
-
-      // View mode: staff vs participant (simple toggle)
       const [viewMode, setViewMode] = useState("staff");
 
-      // Records state
       const [records, setRecords] = useState([]);
       const [selectedId, setSelectedId] = useState("");
 
@@ -359,14 +378,12 @@
         return base;
       }, [activities, recommendedSupports]);
 
-      // Progress (based on real activities, not recommendations)
       const totalActivities = activities.length;
       const completedActivities = activities.filter(a => a.status === "Completed").length;
       const progressPercent = totalActivities
         ? Math.round((completedActivities / totalActivities) * 100)
         : 0;
 
-      // JSON import/export
       function exportJSON() {
         const payload = { participant, barriers, activities: normalizeActivities(activities), notes };
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -391,7 +408,6 @@
         }
       }
 
-      // Save/Load/Delete to localStorage
       function saveToLibrary() {
         const id = selectedId || (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10));
         const name = participant.name?.trim() || "Unnamed";
@@ -426,7 +442,6 @@
         if (selectedId === id) setSelectedId("");
       }
 
-      // Quick templates
       function applyTemplate(template) {
         if (template === "youth") {
           setParticipant(p => ({
@@ -495,7 +510,6 @@
         }
       }
 
-      // Plain-language participant summary
       function buildParticipantSummary() {
         const firstTraining = activities.find(a => a.phase === "training");
         const firstPlacement = activities.find(a => a.phase === "placement");
@@ -517,7 +531,6 @@
         ].join("\n");
       }
 
-      // Completeness checklist (navigator view)
       function completenessChecks() {
         const hasPhase = phase => (phaseBuckets[phase] || []).length > 0;
         return [
@@ -532,7 +545,6 @@
         ];
       }
 
-      // Case note builder + copy
       function buildCaseNote() {
         const dateStr = new Date().toLocaleDateString();
         const barrierLabels = barriers.map(
@@ -566,67 +578,75 @@ Notes: ${notes || "N/A"}`;
       }
 
       return (
-        <div className={`min-h-screen w-full ${compact ? "p-2" : "p-6"} ${printPathwayOnly ? "print-pathway-only" : ""}`}>
-          <div className="mx-auto max-w-7xl">
+        <div className={`min-h-screen w-full ${compact ? "p-2" : "p-4 md:p-6"} ${printPathwayOnly ? "print-pathway-only" : ""}`}>
+          <div className="mx-auto max-w-7xl bg-slate-900/70 rounded-3xl shadow-2xl border border-slate-800 p-4 md:p-6 lg:p-8 text-slate-50">
             {/* Header */}
-            <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
+            <div className="flex flex-wrap items-center justify-between mb-6 gap-4 bg-slate-950/60 border border-slate-700 rounded-2xl px-4 py-3">
               <div>
-                <h1 className="text-2xl font-bold">WIOA Career Pathway Generator</h1>
-                <p className="text-sm text-gray-600">
-                  Turn demographics, goals, barriers, and activities into a visual Career Pathway you can print or export.
+                <div className="inline-flex items-center gap-2 mb-1">
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[10px] uppercase tracking-wide">
+                    WIOA tool
+                  </span>
+                  <span className="text-[11px] text-slate-400">v1.0</span>
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-50">
+                  Career Pathway Generator
+                </h1>
+                <p className="text-sm text-slate-400 mt-1">
+                  Design, explain, and track a clear pathway with your participant in real time.
                 </p>
-                <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-600">
-                  <span>Quick templates:</span>
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-300">
+                  <span className="text-slate-400">Quick templates:</span>
                   <button
                     type="button"
                     onClick={() => applyTemplate("youth")}
-                    className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50"
+                    className="px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 hover:border-emerald-400/70 hover:bg-slate-800 transition-colors"
                   >
                     Youth
                   </button>
                   <button
                     type="button"
                     onClick={() => applyTemplate("dw")}
-                    className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50"
+                    className="px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 hover:border-emerald-400/70 hover:bg-slate-800 transition-colors"
                   >
                     Dislocated Worker
                   </button>
                   <button
                     type="button"
                     onClick={() => applyTemplate("adult")}
-                    className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50"
+                    className="px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 hover:border-emerald-400/70 hover:bg-slate-800 transition-colors"
                   >
                     Adult
                   </button>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-xs text-slate-300">
                   <input
                     type="checkbox"
-                    className="h-4 w-4"
+                    className="h-3.5 w-3.5 accent-emerald-500"
                     checked={compact}
                     onChange={e => setCompact(e.target.checked)}
                   />
                   Compact
                 </label>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-xs text-slate-300">
                   <span>View:</span>
                   <select
-                    className="h-8 px-2 border rounded-md text-xs"
+                    className="h-8 px-2 rounded-full border border-slate-700 bg-slate-900 text-[11px] text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70"
                     value={viewMode}
                     onChange={e => setViewMode(e.target.value)}
                   >
-                    <option value="staff">Staff view</option>
-                    <option value="participant">Participant view</option>
+                    <option value="staff">Staff</option>
+                    <option value="participant">Participant</option>
                   </select>
                 </label>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-xs text-slate-300">
                   <input
                     type="checkbox"
-                    className="h-4 w-4"
+                    className="h-3.5 w-3.5 accent-emerald-500"
                     checked={printPathwayOnly}
                     onChange={e => setPrintPathwayOnly(e.target.checked)}
                   />
@@ -635,13 +655,13 @@ Notes: ${notes || "N/A"}`;
 
                 <button
                   onClick={exportJSON}
-                  className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50"
+                  className="px-3 py-1.5 text-xs rounded-full border border-slate-600 bg-slate-900 hover:bg-slate-800 text-slate-100 transition-colors"
                 >
                   Export JSON
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50"
+                  className="px-3 py-1.5 text-xs rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-medium shadow-sm transition-colors"
                 >
                   Print
                 </button>
@@ -651,19 +671,19 @@ Notes: ${notes || "N/A"}`;
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 print:grid-cols-3">
               {/* Left: Inputs */}
               <div className="lg:col-span-1 print:col-span-1">
-                <div className="p-4 space-y-6 bg-white rounded-xl border shadow-sm">
+                <div className="p-4 space-y-6 bg-slate-950/70 rounded-2xl border border-slate-700 shadow-lg">
                   <SectionTitle emoji="🧑‍💼">Participant</SectionTitle>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mt-2">
                     <Field label="Name">
                       <input
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.name}
                         onChange={e => setParticipant({ ...participant, name: e.target.value })}
                       />
                     </Field>
                     <Field label="SID" hint="State ID or inner ID">
                       <input
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         placeholder="e.g., NE-123456"
                         value={participant.sid ?? ""}
                         onChange={e => setParticipant({ ...participant, sid: e.target.value })}
@@ -672,14 +692,14 @@ Notes: ${notes || "N/A"}`;
                     <Field label="Age">
                       <input
                         type="number"
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.age}
                         onChange={e => setParticipant({ ...participant, age: Number(e.target.value) })}
                       />
                     </Field>
                     <Field label="Population">
                       <select
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.population}
                         onChange={e => setParticipant({ ...participant, population: e.target.value })}
                       >
@@ -690,7 +710,7 @@ Notes: ${notes || "N/A"}`;
                     </Field>
                     <Field label="Education Level">
                       <select
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.education}
                         onChange={e => setParticipant({ ...participant, education: e.target.value })}
                       >
@@ -702,22 +722,23 @@ Notes: ${notes || "N/A"}`;
                       </select>
                     </Field>
                     <Field label="Veteran">
-                      <label className="flex items-center h-10 px-3 border rounded-md bg-white gap-2">
+                      <label className="flex items-center h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 gap-2 cursor-pointer">
                         <input
                           type="checkbox"
+                          className="h-3.5 w-3.5 accent-emerald-500"
                           checked={participant.veteran}
                           onChange={e => setParticipant({ ...participant, veteran: e.target.checked })}
                         />
-                        <span className="text-sm text-gray-700">Yes</span>
+                        <span className="text-xs text-slate-200">Yes</span>
                       </label>
                     </Field>
                   </div>
 
                   <SectionTitle emoji="🎯">Goals</SectionTitle>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mt-2">
                     <Field label="Target Occupation">
                       <input
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.targetOccupation}
                         onChange={e => setParticipant({ ...participant, targetOccupation: e.target.value })}
                       />
@@ -725,7 +746,7 @@ Notes: ${notes || "N/A"}`;
                     <Field label="Wage Goal ($/hr)">
                       <input
                         type="number"
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.wageGoal}
                         onChange={e => setParticipant({ ...participant, wageGoal: Number(e.target.value) })}
                       />
@@ -733,14 +754,14 @@ Notes: ${notes || "N/A"}`;
                     <Field label="Timeline (months)">
                       <input
                         type="number"
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.timelineMonths}
                         onChange={e => setParticipant({ ...participant, timelineMonths: Number(e.target.value) })}
                       />
                     </Field>
                     <Field label="Credential Target(s)">
                       <input
-                        className="w-full h-10 px-3 border rounded-md"
+                        className="w-full h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={participant.credentialTarget}
                         onChange={e => setParticipant({ ...participant, credentialTarget: e.target.value })}
                       />
@@ -748,43 +769,58 @@ Notes: ${notes || "N/A"}`;
                   </div>
 
                   <SectionTitle emoji="🧱">Barriers</SectionTitle>
-                  <div className="grid grid-cols-2 gap-2">
-                    {BARRIER_LIBRARY.map(b => (
-                      <label key={b.key} className="flex items-center gap-2 text-sm p-2 rounded-md border bg-white">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4"
-                          checked={barriers.includes(b.key)}
-                          onChange={e => {
-                            setBarriers(prev =>
-                              e.target.checked ? [...prev, b.key] : prev.filter(x => x !== b.key)
-                            );
-                          }}
-                        />
-                        {b.label}
-                      </label>
-                    ))}
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {BARRIER_LIBRARY.map(b => {
+                      const selected = barriers.includes(b.key);
+                      return (
+                        <label
+                          key={b.key}
+                          className={`
+                            inline-flex items-center gap-2 text-[11px] px-2.5 py-1.5 rounded-full border cursor-pointer transition-all
+                            ${
+                              selected
+                                ? "bg-emerald-500/15 border-emerald-500/60 text-emerald-100"
+                                : "bg-slate-900 border-slate-700 text-slate-200 hover:border-emerald-400/70"
+                            }
+                          `}
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 accent-emerald-500"
+                            checked={selected}
+                            onChange={e => {
+                              setBarriers(prev =>
+                                e.target.checked ? [...prev, b.key] : prev.filter(x => x !== b.key)
+                              );
+                            }}
+                          />
+                          <span>{b.label}</span>
+                        </label>
+                      );
+                    })}
                   </div>
 
                   <SectionTitle emoji="✅">Activities</SectionTitle>
-                  <ActivitiesEditor activities={activities} setActivities={setActivities} />
+                  <div className="mt-2">
+                    <ActivitiesEditor activities={activities} setActivities={setActivities} />
+                  </div>
 
                   <Field label="Notes / Case Plan">
                     <textarea
                       rows="4"
-                      className="w-full px-3 py-2 border rounded-md"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
                     ></textarea>
                   </Field>
 
                   <SectionTitle emoji="📥">Import / Export JSON</SectionTitle>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-1">
                     <Field label="Import JSON">
                       <textarea
                         rows="3"
                         placeholder="Paste previously exported JSON here"
-                        className="w-full px-3 py-2 border rounded-md"
+                        className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={jsonText}
                         onChange={e => setJsonText(e.target.value)}
                       ></textarea>
@@ -792,7 +828,7 @@ Notes: ${notes || "N/A"}`;
                     <div className="flex gap-2">
                       <button
                         onClick={importJSON}
-                        className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50"
+                        className="px-3 py-1.5 text-xs rounded-full border border-slate-600 bg-slate-900 hover:bg-slate-800 text-slate-100 transition-colors"
                       >
                         Load from JSON
                       </button>
@@ -800,10 +836,10 @@ Notes: ${notes || "N/A"}`;
                   </div>
 
                   <SectionTitle emoji="📚">Library (saved pathways)</SectionTitle>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-1">
                     <div className="flex gap-2 items-center">
                       <select
-                        className="flex-1 h-10 px-3 border rounded-md"
+                        className="flex-1 h-9 px-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/70 transition-all"
                         value={selectedId}
                         onChange={e => loadFromLibrary(e.target.value)}
                       >
@@ -816,7 +852,7 @@ Notes: ${notes || "N/A"}`;
                       </select>
                       <button
                         onClick={saveToLibrary}
-                        className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50"
+                        className="px-3 py-1.5 text-xs rounded-full border border-slate-600 bg-slate-900 hover:bg-slate-800 text-slate-100 transition-colors"
                       >
                         Save to Library
                       </button>
@@ -825,12 +861,12 @@ Notes: ${notes || "N/A"}`;
                       <button
                         disabled={!selectedId}
                         onClick={() => deleteFromLibrary(selectedId)}
-                        className="px-3 py-2 text-sm rounded-md border bg-white hover:bg-gray-50 disabled:opacity-50"
+                        className="px-3 py-1.5 text-xs rounded-full border border-slate-600 bg-slate-900 hover:bg-slate-800 text-slate-100 disabled:opacity-50 transition-colors"
                       >
                         Delete Selected
                       </button>
                     </div>
-                    <div className="text-[11px] text-gray-500">
+                    <div className="text-[11px] text-slate-400">
                       Tip: The Library saves to <code>localStorage</code> on this device/browser.
                     </div>
                   </div>
@@ -839,33 +875,42 @@ Notes: ${notes || "N/A"}`;
 
               {/* Right: Map */}
               <div className="lg:col-span-2 print:col-span-2">
-                <div className={`bg-white rounded-xl border shadow-sm ${compact ? "p-3" : "p-6"} print-target-pathway`}>
+                <div
+                  className={`
+                    bg-slate-950/80 rounded-2xl border border-slate-700 shadow-xl
+                    ${compact ? "p-3" : "p-6"} print-target-pathway
+                  `}
+                >
                   <div className="flex flex-wrap items-start justify-between mb-4 gap-3">
                     <div>
-                      <div className="text-xl font-semibold">Career Pathway</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-xl font-semibold text-slate-50">Career Pathway</div>
+                      <div className="text-sm text-slate-300">
                         Target: {participant.targetOccupation} • Wage Goal: ${participant.wageGoal}/hr • Timeline: {participant.timelineMonths} mo
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-slate-400">
                         Credential(s): {participant.credentialTarget}
                       </div>
-                      <div className="mt-2 text-xs text-gray-600">
-                        Overall progress: {completedActivities}/{totalActivities} activities completed ({progressPercent}%)
-                        <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
+                      <div className="mt-3 text-xs text-slate-200">
+                        Overall progress:{" "}
+                        <span className="font-semibold text-emerald-300">
+                          {completedActivities}/{totalActivities}
+                        </span>{" "}
+                        activities completed ({progressPercent}%)
+                        <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
                           <div
-                            className="bg-emerald-500 h-1.5 rounded-full"
+                            className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-300 h-1.5 rounded-full transition-all"
                             style={{ width: `${progressPercent}%` }}
                           ></div>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-700 font-medium">Legend</div>
+                      <div className="text-sm text-slate-200 font-medium">Legend</div>
                       <div className="flex gap-2 mt-1 flex-wrap justify-end">
                         {STATUSES.map(s => (
                           <span
                             key={s.value}
-                            className={`px-2 py-0.5 text-xs rounded-full border ${STATUS_COLORS[s.value]}`}
+                            className={`px-2 py-0.5 text-[11px] rounded-full border ${STATUS_COLORS[s.value]} shadow-sm`}
                           >
                             {s.label}
                           </span>
@@ -877,34 +922,44 @@ Notes: ${notes || "N/A"}`;
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-7 gap-3">
                     {PHASES.map(phase => (
                       <div key={phase.key} className="relative">
-                        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b px-2 py-1 rounded-t-md">
-                          <div className="text-xs uppercase tracking-wide text-gray-500">{phase.label}</div>
+                        <div className="sticky top-0 z-10 bg-slate-950/90 backdrop-blur rounded-t-lg border-b border-slate-700 px-2 py-1.5">
+                          <div className="text-[11px] uppercase tracking-wide text-slate-400 flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80"></span>
+                            {phase.label}
+                          </div>
                         </div>
                         <div className="space-y-2 pt-2">
                           {phaseBuckets[phase.key].length === 0 && (
-                            <div className="text-xs text-gray-400 border border-dashed rounded-md p-2">No steps yet.</div>
+                            <div className="text-[11px] text-slate-500 border border-dashed border-slate-700 rounded-lg p-2">
+                              No steps yet.
+                            </div>
                           )}
                           {phaseBuckets[phase.key].map(step => (
                             <div
                               key={step.id}
-                              className={`border rounded-md p-2 shadow-sm ${STATUS_COLORS[step.status]} bg-opacity-60 ${
-                                isOverdue(step) ? "ring-2 ring-red-300" : ""
-                              }`}
+                              className={`
+                                border rounded-xl p-2.5 shadow-sm text-xs
+                                backdrop-blur
+                                transition-all
+                                hover:-translate-y-0.5 hover:shadow-md
+                                ${STATUS_COLORS[step.status]}
+                                ${isOverdue(step) ? "ring-2 ring-red-400/70" : "ring-0"}
+                              `}
                             >
-                              <div className="text-sm font-medium leading-tight">{step.label}</div>
-                              <div className="flex items-center justify-between mt-1 text-[11px] opacity-80">
-                                <span>Status: {step.status}</span>
-                                <span>
-                                  {step.dueDate ? `Due: ${step.dueDate}` : "→"}
-                                </span>
+                              <div className="text-[13px] font-semibold leading-tight text-slate-900">
+                                {step.label}
+                              </div>
+                              <div className="flex items-center justify-between mt-1 text-[11px] text-slate-900/80">
+                                <span>{step.status}</span>
+                                <span>{step.dueDate ? `Due: ${step.dueDate}` : "Next"}</span>
                               </div>
                               {isOverdue(step) && (
-                                <div className="mt-1 text-[10px] text-red-700 font-semibold">
+                                <div className="mt-1 text-[10px] text-red-800 font-semibold">
                                   Overdue – review with participant
                                 </div>
                               )}
                               {(step.comment ?? "").trim() !== "" && (
-                                <div className="mt-2 text-xs text-gray-700 whitespace-pre-line leading-snug">
+                                <div className="mt-2 text-[11px] text-slate-900/90 whitespace-pre-line leading-snug">
                                   {step.comment}
                                 </div>
                               )}
@@ -917,10 +972,10 @@ Notes: ${notes || "N/A"}`;
 
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
                     {/* Participant Snapshot */}
-                    <div className="col-span-1 border-dashed border rounded-lg">
+                    <div className="col-span-1 border border-dashed border-slate-700 rounded-xl bg-slate-950/70">
                       <div className="p-3">
-                        <div className="text-sm font-semibold mb-2">Participant Snapshot</div>
-                        <div className="text-xs text-gray-600 space-y-1">
+                        <div className="text-sm font-semibold mb-2 text-slate-100">Participant Snapshot</div>
+                        <div className="text-xs text-slate-300 space-y-1">
                           <div><strong>Name:</strong> {participant.name}</div>
                           <div><strong>SID:</strong> {participant.sid || "—"}</div>
                           <div><strong>Population:</strong> {participant.population} • <strong>Age:</strong> {participant.age}</div>
@@ -929,19 +984,19 @@ Notes: ${notes || "N/A"}`;
                       </div>
                     </div>
 
-                    {/* Barriers */}
+                    {/* Barriers Selected */}
                     {viewMode === "staff" && (
-                      <div className="col-span-1 border-dashed border rounded-lg">
+                      <div className="col-span-1 border border-dashed border-slate-700 rounded-xl bg-slate-950/70">
                         <div className="p-3">
-                          <div className="text-sm font-semibold mb-2">Barriers Selected</div>
+                          <div className="text-sm font-semibold mb-2 text-slate-100">Barriers Selected</div>
                           <div className="flex flex-wrap gap-1">
                             {barriers.length === 0 && (
-                              <span className="text-xs text-gray-400">None</span>
+                              <span className="text-xs text-slate-500">None</span>
                             )}
                             {barriers.map(b => (
                               <span
                                 key={b}
-                                className="text-[11px] bg-gray-100 border rounded px-2 py-0.5"
+                                className="text-[11px] bg-slate-900 border border-slate-700 rounded-full px-2 py-0.5 text-slate-200"
                               >
                                 {BARRIER_LIBRARY.find(x => x.key === b)?.label}
                               </span>
@@ -951,15 +1006,17 @@ Notes: ${notes || "N/A"}`;
                       </div>
                     )}
 
-                    {/* Case Notes + Copy button (staff) */}
+                    {/* Case Notes (staff) */}
                     {viewMode === "staff" && (
-                      <div className="col-span-1 border-dashed border rounded-lg">
+                      <div className="col-span-1 border border-dashed border-slate-700 rounded-xl bg-slate-950/70">
                         <div className="p-3">
-                          <div className="text-sm font-semibold mb-2">Case Notes</div>
-                          <div className="text-xs whitespace-pre-wrap text-gray-700">{notes}</div>
+                          <div className="text-sm font-semibold mb-2 text-slate-100">Case Notes</div>
+                          <div className="text-xs whitespace-pre-wrap text-slate-200 max-h-32 overflow-auto">
+                            {notes}
+                          </div>
                           <button
                             onClick={copyCaseNote}
-                            className="mt-2 px-2 py-1 text-[11px] rounded-md border bg-white hover:bg-gray-50"
+                            className="mt-2 px-2.5 py-1 text-[11px] rounded-full border border-slate-600 bg-slate-900 hover:bg-slate-800 text-slate-100 transition-colors"
                           >
                             Copy Case Note
                           </button>
@@ -967,27 +1024,27 @@ Notes: ${notes || "N/A"}`;
                       </div>
                     )}
 
-                    {/* Participant Summary (participant-friendly) */}
-                    <div className="col-span-1 border-dashed border rounded-lg">
+                    {/* Participant Summary */}
+                    <div className="col-span-1 border border-dashed border-slate-700 rounded-xl bg-slate-950/70">
                       <div className="p-3">
-                        <div className="text-sm font-semibold mb-2">
+                        <div className="text-sm font-semibold mb-2 text-slate-100">
                           Participant Summary (Plain Language)
                         </div>
-                        <div className="text-xs whitespace-pre-wrap text-gray-700">
+                        <div className="text-xs whitespace-pre-wrap text-slate-200">
                           {buildParticipantSummary()}
                         </div>
                       </div>
                     </div>
 
-                    {/* Plan Completeness (staff only) */}
+                    {/* Plan Completeness (staff) */}
                     {viewMode === "staff" && (
-                      <div className="col-span-1 border-dashed border rounded-lg md:col-span-1">
+                      <div className="col-span-1 border border-dashed border-slate-700 rounded-xl bg-slate-950/70 md:col-span-1">
                         <div className="p-3">
-                          <div className="text-sm font-semibold mb-2">Plan Completeness</div>
+                          <div className="text-sm font-semibold mb-2 text-slate-100">Plan Completeness</div>
                           <ul className="space-y-1 text-xs">
                             {completenessChecks().map(c => (
-                              <li key={c.label} className="flex items-center gap-1">
-                                <span className={c.ok ? "text-emerald-600" : "text-amber-600"}>
+                              <li key={c.label} className="flex items-center gap-1 text-slate-200">
+                                <span className={c.ok ? "text-emerald-300" : "text-amber-300"}>
                                   {c.ok ? "✔" : "⚠"}
                                 </span>
                                 <span>{c.label}</span>
@@ -999,10 +1056,11 @@ Notes: ${notes || "N/A"}`;
                     )}
                   </div>
 
-                  <div className="mt-6 text-[11px] text-gray-500">
+                  <div className="mt-6 text-[11px] text-slate-400">
                     <div>
                       <strong>Tip:</strong> Use <em>Print</em> to save as PDF, or{" "}
-                      <em>Export JSON</em> to reuse this plan later. Use “Participant view” for a simpler, client-facing printout.
+                      <em>Export JSON</em> to reuse this plan later. Switch to{" "}
+                      <em>Participant</em> view for a simpler, client-facing printout.
                     </div>
                   </div>
                 </div>
@@ -1018,7 +1076,7 @@ Notes: ${notes || "N/A"}`;
               .print\\:col-span-1 { grid-column: span 1 / span 1; }
             }
 
-            /* ===== Pathway-only print mode ===== */
+            /* Pathway-only print mode */
             @media print {
               .print-pathway-only * {
                 visibility: hidden !important;
